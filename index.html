@@ -1,0 +1,2071 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <title>Owl PDF to Image Converter — High-Quality Image Export</title>
+    <meta name="description" content="Convert PDF pages to high-quality PNG, JPG, and WebP images. Choose your DPI, preserve document details, preview results, and download individual pages or a ZIP archive." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Owl PDF to Image Converter — High-Quality Image Export" />
+    <meta property="og:description" content="Convert PDF pages to high-quality PNG, JPG, and WebP images. Choose your DPI, preserve document details, preview results, and download individual pages or a ZIP archive." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M8.8 11.5 7.4 5.6 13 8.8z' fill='white'/%3E%3Cpath d='M23.2 11.5 24.6 5.6 19 8.8z' fill='white'/%3E%3Ccircle cx='16' cy='17' r='9' fill='white'/%3E%3Ccircle cx='12.7' cy='16' r='2.6' fill='none' stroke='%232563eb' stroke-width='1.6'/%3E%3Ccircle cx='19.3' cy='16' r='2.6' fill='none' stroke='%232563eb' stroke-width='1.6'/%3E%3Ccircle cx='12.7' cy='16' r='1.15' fill='%230f172a'/%3E%3Ccircle cx='19.3' cy='16' r='1.15' fill='%230f172a'/%3E%3Cpath d='M16 19.4l-1.7 2.4h3.4z' fill='%23f59e0b'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --blue: #2563eb;
+        --blob: #1d4ed8;
+        --surface: rgba(255, 255, 255, 0.86);
+        --surface-solid: #ffffff;
+        --panel: rgba(238, 245, 255, 0.78);
+        --panel-2: #e0ecff;
+        --ink: #0f172a;
+        --muted: #475569;
+        --faint: #94a3b8;
+        --line: rgba(203, 219, 246, 0.8);
+        --glass-border: rgba(255, 255, 255, 0.75);
+        --accent: #2563eb;
+        --accent-strong: #1d4ed8;
+        --accent-soft: rgba(37, 99, 235, 0.1);
+        --navy: #0f172a;
+        --navy-hover: #1e293b;
+        --danger: #dc2626;
+        --danger-bg: rgba(254, 226, 226, 0.9);
+        --ok: #059669;
+        --ok-bg: rgba(209, 250, 229, 0.9);
+        --warn: #b45309;
+        --warn-bg: rgba(254, 243, 199, 0.92);
+        --check-1: #e2e8f0;
+        --check-2: #ffffff;
+        --overlay: rgba(15, 23, 42, 0.58);
+        --shadow: 0 24px 48px -18px rgba(15, 23, 42, 0.14), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+        --shadow-sm: 0 8px 20px -8px rgba(15, 23, 42, 0.12);
+        --radius: 28px;
+        color-scheme: light;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; background: #dbeafe; }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        * { transition: none !important; animation: none !important; }
+      }
+      body {
+        margin: 0;
+        background: radial-gradient(circle at 15% 15%, #eff6ff 0%, #dbeafe 38%, #bfdbfe 75%, #93c5fd 100%);
+        background-attachment: fixed;
+        color: var(--ink);
+        font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      body::before, body::after {
+        content: ""; position: fixed; z-index: 0; pointer-events: none; border-radius: 50%;
+        filter: blur(60px);
+      }
+      body::before {
+        width: 65vmax; height: 65vmax; right: -20vmax; top: -25vmax;
+        background: radial-gradient(closest-side, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0));
+      }
+      body::after {
+        width: 55vmax; height: 55vmax; left: -18vmax; bottom: -22vmax;
+        background: radial-gradient(closest-side, rgba(59, 130, 246, 0.35), rgba(37, 99, 235, 0));
+      }
+      .view, footer.site, header.site { position: relative; z-index: 2; }
+      
+      .app-bg {
+        position: fixed; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
+        width: min(1040px, 100%);
+        background: rgba(248, 251, 255, 0.65);
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border-left: 1px solid var(--glass-border);
+        border-right: 1px solid var(--glass-border);
+        z-index: 1;
+        box-shadow: 0 0 80px rgba(15, 23, 42, 0.12);
+      }
+      main { padding-bottom: 118px; }
+      body.has-doc main { padding-bottom: 220px; }
+      .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.9em; }
+      a { color: var(--accent); transition: color 0.15s ease; }
+      a:hover { color: var(--accent-strong); }
+      :focus-visible { outline: 2.5px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+      .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+      .visually-hidden {
+        position: absolute !important; width: 1px; height: 1px; margin: -1px;
+        padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+      }
+      #fileInput { display: none; }
+      [hidden] { display: none !important; }
+      .skip-link {
+        position: absolute; left: 16px; top: -60px; z-index: 100; background: var(--navy);
+        color: #fff; padding: 10px 18px; border-radius: 999px; font-weight: 800; text-decoration: none;
+      }
+      .skip-link:focus { top: 14px; color: #fff; }
+
+      /* ---------- Header ---------- */
+      header.site {
+        position: sticky; top: 0; z-index: 45;
+        background: rgba(248, 251, 255, 0.72);
+        backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+      }
+      .header-in { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 12px 0; }
+      .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); margin-right: auto; }
+      .brand:hover { color: var(--ink); }
+      .brand-mark { flex: none; display: block; filter: drop-shadow(0 4px 10px rgba(37, 99, 235, 0.25)); transition: transform 0.2s ease; }
+      .brand:hover .brand-mark { transform: scale(1.05) rotate(-3deg); }
+      .brand-name { font-weight: 900; font-size: 1.08rem; letter-spacing: -0.015em; line-height: 1.15; }
+      .brand-sub { display: block; font-size: 0.7rem; font-weight: 800; color: var(--accent); letter-spacing: 0.06em; margin-top: 2px; }
+      
+      nav.main-nav { display: none; align-items: center; gap: 6px; }
+      @media (min-width: 760px) {
+        nav.main-nav { display: flex; }
+      }
+      nav.main-nav a {
+        color: var(--muted); text-decoration: none; font-weight: 800; font-size: 0.9rem;
+        padding: 7px 14px; border-radius: 999px; transition: all 0.15s ease;
+      }
+      nav.main-nav a:hover, nav.main-nav a.active {
+        background: rgba(37, 99, 235, 0.1); color: var(--accent-strong);
+      }
+
+      /* ---------- Page head & hero card ---------- */
+      .top-grid {
+        display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; align-items: stretch;
+      }
+      @media (min-width: 820px) {
+        .top-grid { grid-template-columns: 1.35fr 0.65fr; }
+      }
+      .hero-card {
+        position: relative; border-radius: var(--radius); overflow: hidden;
+        padding: 20px 22px;
+        display: flex; flex-wrap: wrap; align-items: center; column-gap: 16px;
+        background: linear-gradient(145deg, rgba(255,255,255,0.92) 0%, rgba(224,238,255,0.88) 100%);
+        backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow);
+      }
+      .hero-head { width: 100%; margin-bottom: 12px; position: relative; z-index: 1; }
+      .hero-head h1 {
+        margin: 0 0 4px; font-size: clamp(1.35rem, 2.5vw, 1.7rem); line-height: 1.18;
+        font-weight: 900; letter-spacing: -0.02em; color: var(--ink);
+      }
+      .hero-head p.lede { margin: 0; font-size: 0.94rem; color: var(--muted); font-weight: 600; }
+      .bubble {
+        position: relative; z-index: 1; background: rgba(255, 255, 255, 0.95); border-radius: 16px;
+        padding: 11px 14px; font-weight: 800; font-size: 0.88rem; line-height: 1.4;
+        border: 1px solid rgba(255,255,255,0.9);
+        box-shadow: 0 8px 20px -10px rgba(15, 23, 42, 0.18); flex: 1 1 58%; min-width: 0;
+      }
+      .bubble::after {
+        content: ""; position: absolute; right: -6px; top: 50%; margin-top: -7px; width: 14px; height: 14px;
+        background: #fff; transform: rotate(45deg); border-radius: 3px;
+      }
+      .hero-art { display: block; width: 84px; max-width: 26%; height: auto; margin: 0; flex: none; position: relative; z-index: 1; }
+      .chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 0; padding: 0; list-style: none; position: relative; z-index: 1; flex: 1 1 100%; }
+      .chips li {
+        display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 800;
+        background: rgba(255, 255, 255, 0.9); color: var(--ink); border-radius: 999px; padding: 5px 11px 5px 8px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 4px 12px -4px rgba(15, 23, 42, 0.12);
+      }
+      .chips svg { flex: none; }
+
+      /* ---------- Stat mini-cards ---------- */
+      .stat-row {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      }
+      @media (min-width: 820px) {
+        .stat-row { grid-template-columns: 1fr; }
+      }
+      .stat-card {
+        background: var(--surface);
+        backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px; box-shadow: var(--shadow-sm);
+        padding: 16px 20px; display: flex; flex-direction: column; justify-content: center; gap: 4px; min-width: 0;
+      }
+      .stat-top { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+      .stat-top svg { flex: none; }
+      .stat-value { font-size: 1.35rem; font-weight: 900; letter-spacing: -0.015em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); }
+
+      /* ---------- Quick links list ---------- */
+      .quick-list { margin-top: 20px; padding: 6px 22px; }
+      .quick-row {
+        display: flex; align-items: center; gap: 14px; padding: 14px 4px;
+        border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink); font-weight: 800;
+        transition: transform 0.15s ease;
+      }
+      .quick-row:hover { transform: translateX(4px); }
+      .quick-row:last-child { border-bottom: none; }
+      .quick-row .q-ic {
+        flex: none; width: 42px; height: 42px; border-radius: 14px; background: var(--accent-soft);
+        display: flex; align-items: center; justify-content: center;
+      }
+      .quick-row .q-sub { display: block; color: var(--muted); font-weight: 600; font-size: 0.85rem; }
+      .quick-row .q-arrow { margin-left: auto; color: var(--faint); font-weight: 900; }
+      .quick-row .q-view { margin-left: auto; color: var(--accent-strong); font-size: 0.88rem; font-weight: 800; white-space: nowrap; }
+      .convert-note { margin: 10px 0 0; text-align: center; color: var(--muted); font-size: 0.86rem; font-weight: 700; }
+
+      /* ---------- Cards & buttons ---------- */
+      .card {
+        background: var(--surface);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius); box-shadow: var(--shadow);
+      }
+      .btn {
+        appearance: none; border: 1.5px solid var(--line); background: var(--surface-solid); color: var(--ink);
+        font: inherit; font-weight: 800; font-size: 0.94rem; border-radius: 999px;
+        min-height: 44px; padding: 9px 20px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        text-decoration: none; transition: all 0.16s ease;
+        -webkit-tap-highlight-color: transparent;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+      }
+      .btn:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); }
+      .btn:active { transform: scale(0.97); }
+      .btn:disabled { opacity: 0.48; cursor: not-allowed; transform: none; }
+      .btn-primary {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        border-color: transparent; color: #fff;
+        box-shadow: 0 10px 22px -8px rgba(37, 99, 235, 0.55);
+      }
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        border-color: transparent; color: #fff;
+        box-shadow: 0 14px 26px -8px rgba(37, 99, 235, 0.65);
+      }
+      .btn-sm { padding: 6px 14px; min-height: 36px; font-size: 0.85rem; }
+      .btn-lg { padding: 15px 26px; min-height: 56px; font-size: 1.05rem; border-radius: 18px; width: 100%; }
+      .btn-danger-ghost { color: var(--danger); border-color: rgba(220, 38, 38, 0.25); }
+      .btn-danger-ghost:hover { background: var(--danger-bg); border-color: rgba(220, 38, 38, 0.4); }
+
+      /* ---------- Converter ---------- */
+      .converter { margin-top: 18px; padding: 24px; scroll-margin-top: 76px; scroll-margin-bottom: 130px; }
+      .dropzone, #browseBtn { scroll-margin-bottom: 130px; }
+      .dropzone {
+        border: 2px dashed #93c5fd; border-radius: 22px;
+        background: linear-gradient(180deg, rgba(239, 246, 255, 0.7) 0%, rgba(219, 234, 254, 0.45) 100%);
+        padding: 36px 24px; text-align: center; cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .dropzone:hover, .dropzone:focus-visible {
+        border-color: var(--accent);
+        background: linear-gradient(180deg, rgba(239, 246, 255, 0.95) 0%, rgba(219, 234, 254, 0.75) 100%);
+        transform: translateY(-2px);
+      }
+      .dropzone.dragover { border-color: var(--accent); background: var(--accent-soft); transform: scale(0.99); }
+      .dropzone .dz-icon {
+        margin: 0 auto 14px; width: 62px; height: 62px; border-radius: 20px;
+        background: #fff; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center;
+        color: var(--accent);
+      }
+      .dropzone h2 { margin: 0 0 6px; font-size: 1.35rem; font-weight: 900; letter-spacing: -0.01em; }
+      .dropzone p { margin: 0 0 18px; color: var(--muted); font-size: 0.95rem; font-weight: 600; max-width: 34em; margin-left: auto; margin-right: auto; }
+      .dz-note { margin-top: 16px !important; margin-bottom: 0 !important; font-size: 0.82rem !important; color: var(--muted) !important; opacity: 0.85; }
+      
+      .filebar {
+        display: none; align-items: center; gap: 14px; flex-wrap: wrap;
+        border-radius: 20px; padding: 14px 18px;
+        background: var(--panel); border: 1px solid var(--glass-border);
+      }
+      .filebar.show { display: flex; }
+      .filebar .file-ic {
+        flex: none; width: 46px; height: 46px; border-radius: 14px; background: #fff;
+        box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center;
+      }
+      .filebar .file-meta { min-width: 0; flex: 1 1 180px; margin-right: auto; }
+      .filebar .file-name { font-weight: 800; word-break: break-word; font-size: 0.98rem; }
+      .filebar .file-sub { color: var(--muted); font-size: 0.85rem; font-weight: 700; }
+
+      .alert { display: none; border-radius: 16px; padding: 13px 16px; margin-top: 16px; font-size: 0.93rem; font-weight: 600; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+      .alert.show { display: flex; }
+      .alert-error { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(220, 38, 38, 0.35); }
+      .alert-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid rgba(180, 83, 9, 0.35); }
+      .alert-info { background: var(--accent-soft); color: var(--ink); border: 1px solid rgba(37, 99, 235, 0.3); }
+
+      /* ---------- Responsive 2-Column Workspace ---------- */
+      .workspace { display: none; margin-top: 22px; }
+      .workspace.show {
+        display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start;
+      }
+      @media (min-width: 820px) {
+        .workspace.show {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+        }
+        .panel-preview {
+          position: sticky; top: 84px;
+        }
+      }
+      .panel {
+        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid var(--glass-border);
+        border-radius: 22px; padding: 18px;
+      }
+      .panel h3 { margin: 0 0 4px; font-size: 1.12rem; font-weight: 900; }
+      .panel .panel-sub { margin: 0 0 14px; color: var(--muted); font-size: 0.86rem; font-weight: 600; }
+      .preview-frame {
+        border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+        background-image: conic-gradient(var(--check-1) 25%, var(--check-2) 0 50%, var(--check-1) 0 75%, var(--check-2) 0);
+        background-size: 16px 16px;
+        display: flex; align-items: center; justify-content: center; min-height: 240px; padding: 10px;
+      }
+      .preview-frame canvas {
+        display: block; max-width: 100%; height: auto; border-radius: 6px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+      }
+      .pager { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+      .pager-jump {
+        display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 0.9rem;
+        background: #fff; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line);
+      }
+      .pager-jump input {
+        width: 48px !important; padding: 3px 6px !important; text-align: center;
+        border-radius: 8px !important; font-size: 0.88rem !important; background: #f1f5f9 !important;
+      }
+      .pager .page-size { color: var(--muted); font-size: 0.82rem; margin-left: auto; font-weight: 700; width: 100%; text-align: center; margin-top: 4px; }
+
+      fieldset { border: 0; padding: 0; margin: 0 0 15px; min-width: 0; }
+      legend, .field-label { font-weight: 800; font-size: 0.9rem; margin-bottom: 8px; padding: 0; display: block; color: var(--ink); }
+      .seg {
+        display: flex; flex-wrap: wrap; gap: 4px;
+        background: rgba(226, 232, 240, 0.75); padding: 4px; border-radius: 14px;
+      }
+      .seg button {
+        appearance: none; font: inherit; font-size: 0.88rem; font-weight: 800; cursor: pointer;
+        border: none; background: transparent; color: var(--muted); flex: 1 1 auto;
+        min-height: 40px; padding: 8px 12px; border-radius: 10px;
+        transition: all 0.14s ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .seg button:hover { color: var(--ink); background: rgba(255, 255, 255, 0.5); }
+      .seg button:active { transform: scale(0.97); }
+      .seg button[aria-pressed="true"] {
+        background: #fff; color: var(--ink);
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.04);
+      }
+      .seg button:disabled { opacity: 0.4; cursor: not-allowed; }
+      .seg button .rec {
+        font-size: 0.68rem; font-weight: 900; color: var(--ok); background: var(--ok-bg);
+        padding: 2px 6px; border-radius: 999px; margin-left: 5px; vertical-align: middle;
+      }
+      .field-note { color: var(--muted); font-size: 0.83rem; margin: 6px 0 0; font-weight: 600; line-height: 1.45; }
+      .field-error { color: var(--danger); font-size: 0.84rem; margin: 6px 0 0; display: none; font-weight: 800; }
+      .field-error.show { display: block; }
+      input[type="number"], input[type="text"], input[type="password"] {
+        font: inherit; font-weight: 700; color: var(--ink); background: #fff;
+        border: 1.5px solid var(--line); border-radius: 12px; padding: 9px 13px; width: 100%;
+        transition: border-color 0.15s ease;
+      }
+      input[type="number"]:focus, input[type="text"]:focus, input[type="password"]:focus {
+        border-color: var(--accent); outline: none;
+      }
+      input[type="color"] {
+        appearance: none; width: 46px; height: 40px; border: 1.5px solid var(--line);
+        border-radius: 12px; padding: 3px; background: #fff; cursor: pointer; vertical-align: middle;
+      }
+      .inline-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+      .inline-row input[type="number"] { max-width: 130px; }
+      .stepper { display: inline-flex; align-items: center; gap: 6px; }
+      .stepper input[type="number"] { max-width: 92px; text-align: center; }
+      .step-btn {
+        appearance: none; width: 40px; height: 40px; flex: none; border-radius: 12px; border: 1px solid var(--line);
+        background: #fff; color: var(--ink); font: inherit; font-size: 1.2rem; font-weight: 800;
+        line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+        transition: background 0.12s ease, transform 0.05s ease;
+      }
+      .step-btn:hover { background: var(--panel); }
+      .step-btn:active { transform: scale(0.94); }
+      .estimate {
+        background: var(--panel); border: 1px solid var(--glass-border); border-radius: 16px;
+        padding: 13px 16px; font-size: 0.88rem; font-weight: 700; margin: 4px 0 14px; color: var(--ink);
+      }
+      .estimate strong {
+        display: block; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+        color: var(--accent-strong); margin-bottom: 3px; font-weight: 900;
+      }
+
+      /* ---------- More options accordion ---------- */
+      .more-options {
+        border: 1.5px solid var(--line); border-radius: 16px; background: rgba(255, 255, 255, 0.75);
+        margin: 0 0 14px; overflow: hidden;
+      }
+      .more-options summary {
+        list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
+        padding: 11px 15px; min-height: 48px; -webkit-tap-highlight-color: transparent;
+      }
+      .more-options summary::-webkit-details-marker { display: none; }
+      .more-options summary::after {
+        content: ""; flex: none; width: 8px; height: 8px;
+        border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+        transform: rotate(-45deg); transition: transform 0.18s ease;
+      }
+      .more-options[open] summary::after { transform: rotate(45deg); }
+      .more-title { font-weight: 900; font-size: 0.9rem; white-space: nowrap; }
+      .more-summary { margin-left: auto; color: var(--muted); font-weight: 700; font-size: 0.82rem; text-align: right; }
+      .more-body { border-top: 1px solid var(--line); padding: 8px 15px 14px; }
+      .more-body .field-label { margin-top: 10px; }
+
+      /* ---------- Sticky quick-action bar ---------- */
+      .stickybar {
+        display: none; position: fixed; z-index: 56; left: 50%; transform: translateX(-50%);
+        bottom: calc(88px + env(safe-area-inset-bottom));
+        width: min(520px, calc(100% - 24px));
+        align-items: center; gap: 14px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border); border-radius: 22px;
+        box-shadow: 0 18px 40px -14px rgba(15, 23, 42, 0.32);
+        padding: 10px 10px 10px 18px;
+      }
+      .stickybar.show { display: flex; }
+      .stickybar-info { min-width: 0; margin-right: auto; display: flex; flex-direction: column; }
+      .stickybar-label { font-size: 0.68rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-strong); }
+      .stickybar-summary { font-weight: 800; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sticky-convert { flex: none; min-height: 46px; padding: 10px 24px; border-radius: 15px; }
+
+      /* ---------- Progress ---------- */
+      .progress-block {
+        display: none; margin-top: 22px; padding: 16px 18px;
+        background: var(--panel); border-radius: 18px; border: 1px solid var(--glass-border);
+      }
+      .progress-block.show { display: block; }
+      .progress-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+      .progress-status { font-weight: 800; font-size: 0.94rem; }
+      .progress-track { height: 12px; border-radius: 999px; background: rgba(203, 213, 225, 0.6); overflow: hidden; }
+      .progress-fill {
+        height: 100%; width: 0%;
+        background: linear-gradient(90deg, #3b82f6, #2563eb);
+        border-radius: 999px; transition: width 0.22s ease;
+      }
+
+      /* ---------- Results ---------- */
+      .results { display: none; margin-top: 28px; border-top: 1px solid var(--line); padding-top: 24px; }
+      .results.show { display: block; }
+      .results-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+      .results-head h3 { margin: 0; font-size: 1.35rem; font-weight: 900; letter-spacing: -0.01em; }
+      .results-summary { color: var(--muted); font-size: 0.92rem; margin: 0 0 16px; font-weight: 700; }
+      .failures {
+        display: none; background: var(--warn-bg); border: 1px solid rgba(180, 83, 9, 0.35); color: var(--warn);
+        border-radius: 16px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.9rem; font-weight: 600;
+      }
+      .failures.show { display: block; }
+      .failures ul { margin: 6px 0 0; padding-left: 20px; }
+      .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 16px; }
+      .result-card {
+        border: 1px solid var(--glass-border); border-radius: 20px; overflow: hidden;
+        background: rgba(255, 255, 255, 0.9); box-shadow: var(--shadow-sm);
+        display: flex; flex-direction: column; transition: transform 0.16s ease, box-shadow 0.16s ease;
+      }
+      .result-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+      .result-thumb {
+        height: 175px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 8px;
+        background-image: conic-gradient(var(--check-1) 25%, var(--check-2) 0 50%, var(--check-1) 0 75%, var(--check-2) 0);
+        background-size: 14px 14px; border-bottom: 1px solid var(--line); cursor: zoom-in;
+      }
+      .result-thumb img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; border-radius: 4px; }
+      .result-body { padding: 13px 15px 15px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+      .result-name { font-weight: 800; font-size: 0.88rem; word-break: break-all; }
+      .result-meta { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
+      .result-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+      .result-actions .btn { flex: 1; }
+      .results-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+
+      /* ---------- Sections ---------- */
+      section.block { padding: 34px 0 6px; scroll-margin-top: 76px; }
+      section.block h2 { margin: 0 0 10px; font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em; color: var(--ink); }
+      section.block .section-lede { color: var(--muted); max-width: 48em; margin: 0 0 22px; font-weight: 600; }
+      .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+      .feature { padding: 22px; }
+      .feature .f-ic {
+        width: 44px; height: 44px; border-radius: 14px; background: var(--accent-soft);
+        display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
+      }
+      .feature h3 { margin: 0 0 6px; font-size: 1.02rem; font-weight: 900; }
+      .feature p { margin: 0; color: var(--muted); font-size: 0.92rem; font-weight: 600; }
+      .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+      .step { padding: 22px; position: relative; }
+      .step .step-num {
+        width: 36px; height: 36px; border-radius: 12px; background: var(--accent); color: #fff;
+        display: flex; align-items: center; justify-content: center; font-weight: 900; margin-bottom: 12px;
+      }
+      .step h3 { margin: 0 0 6px; font-size: 1.02rem; font-weight: 900; }
+      .step p { margin: 0; color: var(--muted); font-size: 0.92rem; font-weight: 600; }
+      .honest { padding: 24px; }
+      .honest p { margin: 0 0 12px; color: var(--muted); font-size: 0.94rem; font-weight: 600; }
+      .honest p:last-child { margin-bottom: 0; }
+      .honest p strong { color: var(--ink); }
+      .faq-list { background: var(--surface); backdrop-filter: blur(18px); border: 1px solid var(--glass-border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 6px 24px; }
+      details.faq { border-bottom: 1px solid var(--line); }
+      details.faq:last-child { border-bottom: none; }
+      details.faq summary {
+        cursor: pointer; font-weight: 800; padding: 18px 34px 18px 2px; position: relative; list-style: none;
+      }
+      details.faq summary::-webkit-details-marker { display: none; }
+      details.faq summary::after {
+        content: "+"; position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+        font-size: 1.35rem; font-weight: 600; color: var(--accent);
+      }
+      details.faq[open] summary::after { content: "–"; }
+      details.faq .faq-body { padding: 0 2px 18px; color: var(--muted); max-width: 56em; font-weight: 600; }
+      details.faq .faq-body p { margin: 0 0 8px; }
+
+      /* ---------- Article views ---------- */
+      .view { display: none; }
+      .view.active { display: block; animation: fadeIn 0.2s ease; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+      article.doc {
+        background: var(--surface); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+        border-radius: var(--radius); box-shadow: var(--shadow);
+        padding: 32px 28px; margin: 22px auto 10px;
+      }
+      article.doc h1 { margin: 0 0 8px; font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 900; letter-spacing: -0.02em; }
+      article.doc .doc-sub { color: var(--muted); margin: 0 0 24px; font-weight: 600; }
+      article.doc h2 { margin: 28px 0 8px; font-size: 1.18rem; font-weight: 900; }
+      article.doc p, article.doc li { color: var(--muted); font-weight: 600; }
+      article.doc p strong, article.doc li strong { color: var(--ink); }
+      article.doc ul { padding-left: 22px; }
+      .notfound {
+        text-align: center; background: var(--surface); border-radius: var(--radius);
+        box-shadow: var(--shadow); padding: 56px 24px 48px; margin-top: 24px;
+      }
+      .notfound .big { font-size: clamp(3.4rem, 10vw, 5.5rem); font-weight: 900; letter-spacing: -0.03em; color: var(--accent); line-height: 1; }
+
+      /* ---------- Footer ---------- */
+      footer.site { margin-top: 24px; border-top: 1px solid var(--line); padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+      .footer-credit { margin: 4px 0 0; padding-bottom: 6px; color: var(--muted); font-size: 0.9rem; font-weight: 700; }
+      .footer-credit a { font-weight: 800; text-decoration: none; }
+      .footer-in { padding: 26px 0 10px; display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+      .footer-in .f-brand { margin-right: auto; max-width: 34em; color: var(--ink); }
+      .footer-in p { margin: 6px 0 0; color: var(--muted); font-size: 0.88rem; font-weight: 600; }
+      .footer-links { display: flex; gap: 6px; flex-wrap: wrap; }
+      .footer-links a { color: var(--ink); text-decoration: none; font-weight: 800; font-size: 0.9rem; padding: 7px 12px; border-radius: 999px; }
+      .footer-links a:hover { background: var(--panel); }
+
+      /* ---------- Bottom tab bar ---------- */
+      .tabbar {
+        display: flex; position: fixed; z-index: 55;
+        left: 50%; transform: translateX(-50%);
+        width: min(460px, calc(100% - 20px));
+        bottom: calc(10px + env(safe-area-inset-bottom));
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px; box-shadow: 0 18px 36px -12px rgba(15, 23, 42, 0.28);
+        padding: 6px; gap: 4px;
+      }
+      .tabbar a {
+        flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+        padding: 8px 4px; border-radius: 18px; color: var(--muted);
+        text-decoration: none; font-size: 0.72rem; font-weight: 800;
+        transition: all 0.15s ease;
+      }
+      .tabbar a:hover { color: var(--ink); }
+      .tabbar a.active { background: var(--accent-soft); color: var(--accent-strong); }
+
+      /* ---------- Modals ---------- */
+      .overlay {
+        position: fixed; inset: 0; z-index: 80; background: var(--overlay);
+        backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+        display: none; align-items: center; justify-content: center; padding: 18px;
+      }
+      .overlay.show { display: flex; }
+      .dialog {
+        background: #ffffff; border-radius: 26px; border: 1px solid var(--glass-border);
+        max-width: 460px; width: 100%; padding: 26px; box-shadow: var(--shadow);
+        max-height: calc(100vh - 36px); overflow: auto;
+      }
+      .dialog h2 { margin: 0 0 8px; font-size: 1.22rem; font-weight: 900; }
+      .dialog p { color: var(--muted); margin: 0 0 14px; font-size: 0.94rem; font-weight: 600; }
+      .dialog .dialog-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; justify-content: flex-end; }
+      .lightbox-dialog { max-width: min(1120px, 96vw); padding: 18px; }
+      .lightbox-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+      .lightbox-head .lb-name { font-weight: 800; word-break: break-all; margin-right: auto; font-size: 0.95rem; }
+      .lightbox-stage {
+        overflow: auto; max-height: calc(100vh - 190px); border: 1px solid var(--line); border-radius: 16px;
+        background-image: conic-gradient(var(--check-1) 25%, var(--check-2) 0 50%, var(--check-1) 0 75%, var(--check-2) 0);
+        background-size: 16px 16px; text-align: center; padding: 12px;
+      }
+      .lightbox-stage img { display: inline-block; vertical-align: top; border-radius: 4px; }
+
+      @media (max-width: 560px) {
+        .wrap { padding: 0 14px; }
+        .converter { padding: 16px; margin-top: 14px; }
+        .hero-card { padding: 16px; }
+        .hero-art { width: 66px; }
+        .bubble { flex-basis: 64%; font-size: 0.84rem; padding: 9px 11px; }
+        .chips { display: grid; grid-template-columns: 1fr 1fr; margin-top: 10px; gap: 6px; }
+        .chips li { min-width: 0; padding: 5px 8px; font-size: 0.72rem; }
+        .stat-card { padding: 12px 14px; }
+        .stat-value { font-size: 1.15rem; }
+        .dropzone { padding: 22px 14px; }
+        .panel { padding: 14px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-bg" aria-hidden="true"></div>
+    <a class="skip-link" href="#converter">Skip to the converter</a>
+    <div class="visually-hidden" role="status" aria-live="polite" id="srStatus"></div>
+
+    <header class="site">
+      <div class="wrap header-in">
+        <a class="brand" href="#top" data-nav-home>
+          <svg class="brand-mark" width="38" height="38" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#2563eb"/><path d="M8.8 11.5 7.4 5.6 13 8.8z" fill="#ffffff"/><path d="M23.2 11.5 24.6 5.6 19 8.8z" fill="#ffffff"/><circle cx="16" cy="17" r="9" fill="#ffffff"/><circle cx="12.7" cy="16" r="2.6" fill="none" stroke="#2563eb" stroke-width="1.6"/><circle cx="19.3" cy="16" r="2.6" fill="none" stroke="#2563eb" stroke-width="1.6"/><circle cx="12.7" cy="16" r="1.15" fill="#0f172a"/><circle cx="19.3" cy="16" r="1.15" fill="#0f172a"/><path d="M16 19.4l-1.7 2.4h3.4z" fill="#f59e0b"/></svg>
+          <span class="brand-name">Owl PDF to Image<span class="brand-sub">PNG · JPG · WEBP · 100% LOCAL</span></span>
+        </a>
+        <nav class="main-nav" aria-label="Main">
+          <a href="#converter" data-set-format="png">PDF to PNG</a>
+          <a href="#converter" data-set-format="jpg">PDF to JPG</a>
+          <a href="#converter" data-set-format="webp" id="navWebpLink">PDF to WebP</a>
+          <a href="#/about" data-view-link="about">How It Works</a>
+          <a href="#/faq" data-view-link="faq">FAQ</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- ================= MAIN VIEW ================= -->
+    <div class="view active" id="view-main">
+      <main class="wrap" id="top">
+        <div class="top-grid">
+          <div class="hero-card">
+            <div class="hero-head">
+              <h1>Owl PDF to Image Converter</h1>
+              <p class="lede">Turn every PDF page into crisp PNG, JPG, or WebP images directly in your browser.</p>
+            </div>
+            <div class="bubble">Drop your PDF below, pick your target DPI and format, and export studio-grade images with zero server uploads!</div>
+            <svg class="hero-art" viewBox="0 0 220 180" role="img" aria-label="Illustration of a friendly PDF document">
+              <ellipse cx="106" cy="162" rx="64" ry="9" fill="rgba(37, 99, 235, 0.16)"/>
+              <rect x="118" y="36" width="64" height="96" rx="12" transform="rotate(9 150 84)" fill="#93c5fd"/>
+              <path d="M62 30h52l26 26v84a10 10 0 0 1-10 10H62a10 10 0 0 1-10-10V40a10 10 0 0 1 10-10z" fill="#ffffff"/>
+              <path d="M114 30l26 26h-16a10 10 0 0 1-10-10z" fill="#dbeafe"/>
+              <rect x="64" y="46" width="35" height="17" rx="5" fill="#ef4444"/>
+              <text x="81.5" y="58.5" text-anchor="middle" font-family="Nunito, sans-serif" font-size="10.5" font-weight="900" fill="#ffffff">PDF</text>
+              <circle cx="86" cy="86" r="3.4" fill="#0f172a"/>
+              <circle cx="108" cy="86" r="3.4" fill="#0f172a"/>
+              <path d="M90 99q7 6 14 0" fill="none" stroke="#0f172a" stroke-width="2.6" stroke-linecap="round"/>
+              <rect x="64" y="112" width="52" height="6" rx="3" fill="#dbeafe"/>
+              <rect x="64" y="124" width="40" height="6" rx="3" fill="#dbeafe"/>
+            </svg>
+            <ul class="chips">
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>100% Local Privacy</li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>72–1200 DPI</li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>PNG · JPG · WebP</li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Batch ZIP Export</li>
+            </ul>
+          </div>
+
+          <div class="stat-row" aria-label="Document and output summary">
+            <div class="stat-card">
+              <span class="stat-top"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>PDF Pages</span>
+              <span class="stat-value" id="statPages">—</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-top"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h10M18 8h2M4 16h4M12 16h8"/><circle cx="16" cy="8" r="2.2"/><circle cx="10" cy="16" r="2.2"/></svg>Active Output</span>
+              <span class="stat-value" id="statSettings">300 DPI · PNG</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ CONVERTER ============ -->
+        <section class="card converter" id="converter" aria-label="PDF converter">
+          <div class="dropzone" id="dropzone" tabindex="0" role="button"
+               aria-label="Drop a PDF file here, or activate to choose a PDF file">
+            <div class="dz-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m6 10 6-6 6 6"/><path d="M4 20h16"/></svg>
+            </div>
+            <h2>Drag &amp; drop your PDF here</h2>
+            <p>Processed locally inside your browser — your document is never uploaded to any server.</p>
+            <button type="button" class="btn btn-primary" id="browseBtn">Select PDF File</button>
+            <p class="dz-note">Supports single &amp; multi-page PDFs · Encrypted/Password-protected PDFs supported</p>
+          </div>
+          <input type="file" id="fileInput" accept="application/pdf,.pdf" class="visually-hidden" aria-label="Choose a PDF file" />
+
+          <div class="filebar" id="filebar">
+            <div class="file-ic" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+            </div>
+            <div class="file-meta">
+              <div class="file-name" id="fileName">—</div>
+              <div class="file-sub" id="fileSub">—</div>
+            </div>
+            <button type="button" class="btn btn-sm" id="replaceBtn">Replace PDF</button>
+            <button type="button" class="btn btn-sm btn-danger-ghost" id="removeBtn">Remove</button>
+          </div>
+
+          <div class="alert" id="alertBox" role="alert"></div>
+
+          <div class="workspace" id="workspace">
+            <!-- Preview -->
+            <div class="panel panel-preview" aria-label="PDF preview">
+              <h3>Live Page Preview</h3>
+              <p class="panel-sub">Scaled to fit your screen. Final exports render directly from vector PDF instructions at your selected DPI.</p>
+              <div class="preview-frame">
+                <canvas id="previewCanvas" aria-label="Preview of the current PDF page"></canvas>
+              </div>
+              <div class="pager">
+                <button type="button" class="btn btn-sm" id="prevPageBtn" aria-label="Previous page">← Prev</button>
+                <div class="pager-jump" style="margin: 0 auto;">
+                  <label for="pageJumpInput">Page</label>
+                  <input type="number" id="pageJumpInput" min="1" max="1" value="1" aria-label="Current page number" />
+                  <span id="pageTotalLabel">of 1</span>
+                </div>
+                <button type="button" class="btn btn-sm" id="nextPageBtn" aria-label="Next page">Next →</button>
+                <span class="page-size" id="pageSize"></span>
+              </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="panel panel-settings" aria-label="Conversion settings">
+              <h3>Conversion Settings</h3>
+              <p class="panel-sub">Every selected page exports as an individual high-resolution image file.</p>
+              <form id="settingsForm">
+                <fieldset>
+                  <legend>Output format</legend>
+                  <div class="seg" id="formatSeg" role="group" aria-label="Output format">
+                    <button type="button" data-value="png" aria-pressed="true">PNG (Lossless)</button>
+                    <button type="button" data-value="jpg" aria-pressed="false">JPG</button>
+                    <button type="button" data-value="webp" aria-pressed="false" id="webpFormatBtn">WebP</button>
+                  </div>
+                  <p class="field-note" id="formatNote">PNG stores rendered pixels losslessly and supports transparency. Best for sharp text, logos, and diagrams.</p>
+                </fieldset>
+
+                <fieldset>
+                  <legend>Resolution (DPI)</legend>
+                  <div class="seg" id="dpiSeg" role="group" aria-label="Resolution in DPI">
+                    <button type="button" data-value="150" aria-pressed="false">150 DPI</button>
+                    <button type="button" data-value="300" aria-pressed="true">300 DPI<span class="rec">Best</span></button>
+                    <button type="button" data-value="600" aria-pressed="false">600 DPI</button>
+                    <button type="button" data-value="custom" aria-pressed="false">Custom</button>
+                  </div>
+                </fieldset>
+
+                <fieldset id="qualityField" style="display:none">
+                  <legend id="qualityLegend">Image quality</legend>
+                  <div class="seg" id="qualitySeg" role="group" aria-label="Compression quality">
+                    <button type="button" data-value="85" aria-pressed="false">85%</button>
+                    <button type="button" data-value="92" aria-pressed="false">92%</button>
+                    <button type="button" data-value="96" aria-pressed="false">96%</button>
+                    <button type="button" data-value="100" aria-pressed="true">100%</button>
+                  </div>
+                  <p class="field-note" id="qualityNote">Higher quality preserves finer detail with larger file sizes.</p>
+                </fieldset>
+
+                <fieldset>
+                  <legend>Pages to convert</legend>
+                  <div class="seg" id="pageSeg" role="group" aria-label="Page selection">
+                    <button type="button" data-value="all" aria-pressed="true">All pages</button>
+                    <button type="button" data-value="current" aria-pressed="false">Current page</button>
+                    <button type="button" data-value="range" aria-pressed="false">Custom range</button>
+                  </div>
+                </fieldset>
+
+                <fieldset>
+                  <legend>Background fill</legend>
+                  <div class="seg" id="bgSeg" role="group" aria-label="Background">
+                    <button type="button" data-value="white" aria-pressed="true">White</button>
+                    <button type="button" data-value="transparent" aria-pressed="false" id="bgTransparentBtn">Transparent</button>
+                    <button type="button" data-value="custom" aria-pressed="false">Custom colour</button>
+                  </div>
+                </fieldset>
+
+                <details class="more-options" id="moreOptions">
+                  <summary><span class="more-title">Advanced options</span><span class="more-summary" id="moreSummary">PNG · 300 DPI · All pages</span></summary>
+                  <div class="more-body">
+                    <div class="inline-row" id="customDpiRow" hidden>
+                      <label for="customDpi" style="font-weight:700">Custom DPI (72–1200)</label>
+                      <div class="stepper">
+                        <button type="button" class="step-btn" id="dpiMinus" aria-label="Decrease custom DPI by 10">−</button>
+                        <input type="number" id="customDpi" min="72" max="1200" step="1" value="300" />
+                        <button type="button" class="step-btn" id="dpiPlus" aria-label="Increase custom DPI by 10">+</button>
+                      </div>
+                    </div>
+                    <span class="field-label" id="rangeLabel" hidden>Custom page range</span>
+                    <div class="inline-row" id="rangeRow" hidden>
+                      <label class="visually-hidden" for="rangeInput">Page range, for example 1-3, 5</label>
+                      <input type="text" id="rangeInput" placeholder="e.g. 1-3, 5, 8-10" inputmode="text" autocomplete="off" />
+                    </div>
+                    <p class="field-error" id="rangeError"></p>
+                    <div class="inline-row" id="bgColorRow" hidden>
+                      <label for="bgColor" style="font-weight:700">Background colour</label>
+                      <input type="color" id="bgColor" value="#ffffff" />
+                    </div>
+                    <p class="field-note" id="bgNote">White fills the page backdrop cleanly. Transparent keeps alpha channels in PNG/WebP.</p>
+                  </div>
+                </details>
+
+                <div class="estimate" id="estimateBox" aria-live="polite">
+                  <strong>Estimated Output Dimensions</strong>
+                  <span id="estimateText">—</span>
+                </div>
+
+                <div class="convert-row">
+                  <button type="submit" class="btn btn-primary btn-lg" id="convertBtn">Convert PDF Now</button>
+                </div>
+                <p class="convert-note" id="convertNote">PNG · 300 DPI · All pages</p>
+              </form>
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div class="progress-block" id="progressBlock">
+            <div class="progress-head">
+              <span class="progress-status" id="progressStatus" aria-live="polite">Preparing…</span>
+              <button type="button" class="btn btn-sm" id="cancelBtn" style="margin-left:auto">Cancel</button>
+            </div>
+            <div class="progress-track" role="progressbar" aria-label="Conversion progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+
+          <!-- Results -->
+          <div class="results" id="results">
+            <div class="results-head">
+              <h3>Converted Images</h3>
+              <button type="button" class="btn btn-primary btn-sm" id="zipBtnTop">Download All (ZIP)</button>
+            </div>
+            <p class="results-summary" id="resultsSummary"></p>
+            <div class="failures" id="failuresBox">
+              <strong>Some pages could not be converted:</strong>
+              <ul id="failuresList"></ul>
+            </div>
+            <div class="gallery" id="gallery"></div>
+            <div class="results-actions">
+              <button type="button" class="btn btn-primary" id="zipBtn">Download All as ZIP</button>
+              <button type="button" class="btn" id="againBtn">Adjust Settings</button>
+              <button type="button" class="btn" id="anotherBtn">Convert Another PDF</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ QUICK LINKS ============ -->
+        <div class="card quick-list" aria-label="More about this converter">
+          <a class="quick-row" href="#/about" data-view-link="about">
+            <span class="q-ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg></span>
+            <span>How it works<span class="q-sub">Direct vector-to-canvas rendering at exact DPI</span></span>
+            <span class="q-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="quick-row" href="#/privacy" data-view-link="privacy">
+            <span class="q-ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+            <span>100% Local Privacy<span class="q-sub">Zero server uploads — everything stays in your tab</span></span>
+            <span class="q-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="quick-row" href="#/faq" data-view-link="faq">
+            <span class="q-ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></span>
+            <span>Frequently Asked Questions<span class="q-sub">Choosing between PNG, JPG, WebP, and DPI</span></span>
+            <span class="q-view">Read FAQ →</span>
+          </a>
+        </div>
+      </main>
+    </div>
+
+    <!-- ================= FAQ VIEW ================= -->
+    <div class="view" id="view-faq">
+      <main class="wrap">
+        <section class="block" id="faq" aria-labelledby="faq-h">
+          <h2 id="faq-h">Frequently Asked Questions</h2>
+          <div class="faq-list">
+            <details class="faq" open>
+              <summary>Is my PDF uploaded to any server?</summary>
+              <div class="faq-body"><p>No. Your PDF is read and rendered locally inside your browser using Mozilla's PDF.js engine. Your files, text, and exported images never leave your device. See the <a href="#/privacy" data-view-link="privacy">Privacy Policy</a> for complete details.</p></div>
+            </details>
+            <details class="faq">
+              <summary>Should I choose PNG, JPG, or WebP?</summary>
+              <div class="faq-body"><p>Choose <strong>PNG</strong> for documents with small text, tables, diagrams, or transparency — it is completely lossless. Choose <strong>JPG</strong> for photo-heavy pages where smaller file sizes and universal compatibility matter. Choose <strong>WebP</strong> for modern web usage where you want smaller file sizes than PNG/JPG and transparency support.</p></div>
+            </details>
+            <details class="faq">
+              <summary>What DPI should I select?</summary>
+              <div class="faq-body"><p><strong>150 DPI</strong> is great for quick screen sharing and slides. <strong>300 DPI</strong> (recommended) is the standard for crisp print and sharp text reading. <strong>600 DPI</strong> or custom values up to <strong>1200 DPI</strong> are ideal for fine archival detail and high-magnification artwork.</p></div>
+            </details>
+            <details class="faq">
+              <summary>How are the output pixel dimensions calculated?</summary>
+              <div class="faq-body"><p>Pixel width = <span class="mono">(page width in PDF points ÷ 72) × DPI</span>, and the same formula applies to height. A standard US Letter page (612 × 792 pt) renders at exactly 2,550 × 3,300 px at 300 DPI.</p></div>
+            </details>
+            <details class="faq">
+              <summary>Can I convert a password-protected PDF?</summary>
+              <div class="faq-body"><p>Yes. When you select an encrypted PDF, a modal will ask for the password. It is used strictly in memory to unlock the file locally and is never stored or transmitted.</p></div>
+            </details>
+          </div>
+        </section>
+        <p style="margin:20px 2px 0"><a class="btn btn-sm" href="#top" data-nav-home>← Back to Converter</a></p>
+      </main>
+    </div>
+
+    <!-- ================= PRIVACY VIEW ================= -->
+    <div class="view" id="view-privacy">
+      <main class="wrap">
+        <article class="doc">
+          <h1>Privacy Policy</h1>
+          <p class="doc-sub">How Owl PDF to Image Converter handles your documents: everything stays on your device.</p>
+          <h2>100% Local Processing</h2>
+          <p>This application runs entirely inside your web browser. When you select a PDF, the file is read directly into browser memory and rendered onto an HTML5 canvas. <strong>Your PDF is never uploaded to any server</strong>.</p>
+          <h2>Zero Data Collection</h2>
+          <ul>
+            <li>The contents of your PDFs (text, vector graphics, images, and metadata) are never transmitted anywhere.</li>
+            <li>Previews and converted images exist only as temporary Blob URLs in your active tab's memory.</li>
+            <li>Passwords entered for encrypted PDFs are used only once in memory to unlock the document and are immediately cleared.</li>
+          </ul>
+          <h2>Memory Cleanup</h2>
+          <p>Closing the tab, clicking "Remove", or choosing "Convert Another PDF" immediately destroys the PDF instance and revokes all temporary download URLs from browser memory.</p>
+          <p style="margin-top:28px"><a class="btn btn-sm" href="#top" data-nav-home>← Back to Converter</a></p>
+        </article>
+      </main>
+    </div>
+
+    <!-- ================= ABOUT VIEW ================= -->
+    <div class="view" id="view-about">
+      <main class="wrap">
+        <article class="doc">
+          <h1>About Owl PDF to Image Converter</h1>
+          <p class="doc-sub">A precision client-side tool for turning PDF pages into high-resolution PNG, JPG, and WebP images.</p>
+          <h2>How Rendering Works</h2>
+          <p>Documents are parsed and rendered using <strong>PDF.js</strong>. For every selected page, the target resolution is calculated as <strong>(page points ÷ 72) × DPI</strong> and drawn directly from the PDF's vector instructions onto a hardware-accelerated canvas. Standard font maps and character maps (CMaps) are loaded so typography renders accurately.</p>
+          <p>Pages are processed sequentially one by one to keep RAM usage low and stable even on mobile devices.</p>
+          <p style="margin-top:24px"><a class="btn btn-sm" href="#top" data-nav-home>← Back to Converter</a></p>
+        </article>
+
+        <section class="block" aria-labelledby="features-h">
+          <h2 id="features-h">Built for Fidelity</h2>
+          <p class="section-lede">Rendered fresh from vector instructions at your chosen DPI — never upscaled from a low-res preview.</p>
+          <div class="feature-grid">
+            <div class="card feature">
+              <div class="f-ic" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6M8 11h6"/></svg></div>
+              <h3>Up to 1200 DPI</h3>
+              <p>Crisp vector scaling ensures fine print, technical diagrams, and illustrations remain razor-sharp.</p>
+            </div>
+            <div class="card feature">
+              <div class="f-ic" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L6 21"/></svg></div>
+              <h3>PNG, JPG &amp; WebP</h3>
+              <p>Export lossless transparent PNGs, high-compatibility JPGs, or modern WebP images.</p>
+            </div>
+            <div class="card feature">
+              <div class="f-ic" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/></svg></div>
+              <h3>One-Click ZIP Archive</h3>
+              <p>Grab individual pages or bundle the entire batch into a neatly numbered ZIP archive.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ================= 404 VIEW ================= -->
+    <div class="view" id="view-404">
+      <main class="wrap">
+        <div class="notfound">
+          <div class="big" aria-hidden="true">404</div>
+          <h1 style="margin:14px 0 8px; font-size:1.6rem; font-weight:900">Page Not Found</h1>
+          <p style="color:var(--muted); margin:0 0 24px">The link you followed doesn't exist.</p>
+          <a class="btn btn-primary" href="#top" data-nav-home>Return to Converter</a>
+        </div>
+      </main>
+    </div>
+
+    <footer class="site">
+      <div class="wrap footer-in">
+        <div class="f-brand">
+          <strong>Owl PDF to Image Converter</strong>
+          <p>100% client-side PDF to PNG, JPG &amp; WebP converter. Your files never leave your device.</p>
+        </div>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="#/privacy" data-view-link="privacy">Privacy Policy</a>
+          <a href="#/about" data-view-link="about">About</a>
+          <a href="#/faq" data-view-link="faq">FAQ</a>
+        </nav>
+      </div>
+      <div class="wrap">
+        <p class="footer-credit">Created by <a href="https://tanvir-tasin.pages.dev/" target="_blank" rel="noopener">Tanvir Tasin</a></p>
+      </div>
+    </footer>
+
+    <!-- ================= STICKY QUICK-ACTION BAR ================= -->
+    <div class="stickybar" id="stickyBar">
+      <div class="stickybar-info">
+        <span class="stickybar-label">Ready to export</span>
+        <span class="stickybar-summary" id="stickySummary">PNG · 300 DPI · All pages</span>
+      </div>
+      <button type="button" class="btn btn-primary sticky-convert" id="stickyConvertBtn">Convert</button>
+    </div>
+
+    <!-- ================= MOBILE TAB BAR ================= -->
+    <nav class="tabbar" aria-label="Quick navigation">
+      <a href="#top" data-nav-home data-tab="home" class="active">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22v-8h6v8"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="#converter" data-scroll-to="converter" data-tab="convert">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        <span>Convert</span>
+      </a>
+      <a href="#/faq" data-view-link="faq" data-tab="faq">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+        <span>FAQ</span>
+      </a>
+      <a href="#/about" data-view-link="about" data-tab="about">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <span>About</span>
+      </a>
+    </nav>
+
+    <!-- ================= PASSWORD MODAL ================= -->
+    <div class="overlay" id="passwordOverlay">
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="pwTitle">
+        <h2 id="pwTitle">Password Required</h2>
+        <p id="pwText">This PDF is encrypted. Enter its password to unlock it locally.</p>
+        <form id="passwordForm">
+          <label for="passwordInput" style="font-weight:800; display:block; margin-bottom:7px">PDF Password</label>
+          <input type="password" id="passwordInput" autocomplete="off" placeholder="Enter password…" />
+          <p class="field-error" id="passwordError"></p>
+          <div class="dialog-actions">
+            <button type="button" class="btn" id="passwordCancel">Cancel</button>
+            <button type="submit" class="btn btn-primary">Unlock PDF</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ================= LARGE JOB MODAL ================= -->
+    <div class="overlay" id="confirmOverlay">
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <h2 id="confirmTitle">High-Resolution Job Warning</h2>
+        <p id="confirmText"></p>
+        <p>Continuing may require significant memory on this device. Lowering the DPI or converting fewer pages at once is safer.</p>
+        <div class="dialog-actions">
+          <button type="button" class="btn" id="confirmCancel">Go Back</button>
+          <button type="button" class="btn btn-primary" id="confirmOk">Convert Anyway</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= LIGHTBOX ================= -->
+    <div class="overlay" id="lightboxOverlay">
+      <div class="dialog lightbox-dialog" role="dialog" aria-modal="true" aria-labelledby="lbName">
+        <div class="lightbox-head">
+          <span class="lb-name" id="lbName">—</span>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <button type="button" class="btn btn-sm" id="lbPrev" aria-label="Previous image">←</button>
+            <button type="button" class="btn btn-sm" id="lbNext" aria-label="Next image">→</button>
+          </div>
+          <div class="seg" role="group" aria-label="Zoom">
+            <button type="button" data-zoom="fit" aria-pressed="true">Fit</button>
+            <button type="button" data-zoom="100" aria-pressed="false">100%</button>
+            <button type="button" data-zoom="200" aria-pressed="false">200%</button>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" id="lbDownload">Download</button>
+          <button type="button" class="btn btn-sm" id="lbClose">Close</button>
+        </div>
+        <p class="field-note" id="lbMeta" style="margin:0 0 10px"></p>
+        <div class="lightbox-stage" id="lbStage"><img id="lbImg" alt="Full-size preview of converted page" /></div>
+      </div>
+    </div>
+
+    <noscript><p style="padding:20px; text-align:center">JavaScript is required — the PDF conversion engine runs entirely inside your browser.</p></noscript>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+    (function () {
+      "use strict";
+
+      var PDFJS_VERSION = "3.11.174";
+      var WORKER_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" + PDFJS_VERSION + "/pdf.worker.min.js";
+      var CMAP_URL = "https://cdn.jsdelivr.net/npm/pdfjs-dist@" + PDFJS_VERSION + "/cmaps/";
+      var FONT_URL = "https://cdn.jsdelivr.net/npm/pdfjs-dist@" + PDFJS_VERSION + "/standard_fonts/";
+      var MAX_CANVAS_SIDE = 16384;
+      var WARN_PAGE_PIXELS = 40000000;
+      var WARN_TOTAL_PIXELS = 120000000;
+      var LARGE_FILE_BYTES = 100 * 1024 * 1024;
+
+      function $(sel, root) { return (root || document).querySelector(sel); }
+      function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+      var els = {
+        srStatus: $("#srStatus"),
+        dropzone: $("#dropzone"), fileInput: $("#fileInput"), browseBtn: $("#browseBtn"),
+        filebar: $("#filebar"), fileName: $("#fileName"), fileSub: $("#fileSub"),
+        replaceBtn: $("#replaceBtn"), removeBtn: $("#removeBtn"),
+        alertBox: $("#alertBox"),
+        workspace: $("#workspace"),
+        previewCanvas: $("#previewCanvas"), prevPageBtn: $("#prevPageBtn"), nextPageBtn: $("#nextPageBtn"),
+        pageJumpInput: $("#pageJumpInput"), pageTotalLabel: $("#pageTotalLabel"), pageSize: $("#pageSize"),
+        settingsForm: $("#settingsForm"),
+        webpFormatBtn: $("#webpFormatBtn"), navWebpLink: $("#navWebpLink"),
+        formatNote: $("#formatNote"), qualityField: $("#qualityField"), qualityLegend: $("#qualityLegend"), qualityNote: $("#qualityNote"),
+        customDpiRow: $("#customDpiRow"), customDpi: $("#customDpi"),
+        rangeRow: $("#rangeRow"), rangeInput: $("#rangeInput"), rangeError: $("#rangeError"),
+        bgColorRow: $("#bgColorRow"), bgColor: $("#bgColor"), bgNote: $("#bgNote"),
+        bgTransparentBtn: $("#bgTransparentBtn"),
+        estimateText: $("#estimateText"), convertBtn: $("#convertBtn"),
+        progressBlock: $("#progressBlock"), progressStatus: $("#progressStatus"),
+        progressBar: $("#progressBar"), progressFill: $("#progressFill"), cancelBtn: $("#cancelBtn"),
+        results: $("#results"), resultsSummary: $("#resultsSummary"),
+        failuresBox: $("#failuresBox"), failuresList: $("#failuresList"),
+        gallery: $("#gallery"), zipBtn: $("#zipBtn"), zipBtnTop: $("#zipBtnTop"), againBtn: $("#againBtn"), anotherBtn: $("#anotherBtn"),
+        passwordOverlay: $("#passwordOverlay"), passwordForm: $("#passwordForm"),
+        passwordInput: $("#passwordInput"), passwordError: $("#passwordError"),
+        passwordText: $("#pwText"), passwordCancel: $("#passwordCancel"),
+        confirmOverlay: $("#confirmOverlay"), confirmText: $("#confirmText"),
+        confirmOk: $("#confirmOk"), confirmCancel: $("#confirmCancel"),
+        lightboxOverlay: $("#lightboxOverlay"), lbImg: $("#lbImg"), lbName: $("#lbName"),
+        lbMeta: $("#lbMeta"), lbClose: $("#lbClose"), lbStage: $("#lbStage"),
+        lbPrev: $("#lbPrev"), lbNext: $("#lbNext"), lbDownload: $("#lbDownload"),
+        rangeLabel: $("#rangeLabel"),
+        moreOptions: $("#moreOptions"), moreSummary: $("#moreSummary"),
+        stickyBar: $("#stickyBar"), stickySummary: $("#stickySummary"),
+        stickyConvertBtn: $("#stickyConvertBtn"),
+        statPages: $("#statPages"), statSettings: $("#statSettings"),
+        convertNote: $("#convertNote")
+      };
+
+      var state = {
+        fileName: "", baseName: "", fileSize: 0,
+        pdfBytes: null,
+        pdfDoc: null, numPages: 0,
+        previewPage: 1, previewToken: 0, previewTask: null,
+        loadToken: 0,
+        dimsCache: {},
+        converting: false, cancelRequested: false, currentTask: null,
+        results: [],
+        failures: [],
+        passwordNeeded: false,
+        lastFocus: null,
+        supportsWebp: false
+      };
+
+      /* ---------------- Detect WebP Encoding Support ---------------- */
+      (function checkWebpSupport() {
+        try {
+          var c = document.createElement("canvas");
+          c.width = 1; c.height = 1;
+          var data = c.toDataURL("image/webp");
+          state.supportsWebp = data && data.indexOf("data:image/webp") === 0;
+        } catch (e) {
+          state.supportsWebp = false;
+        }
+        if (!state.supportsWebp) {
+          if (els.webpFormatBtn) els.webpFormatBtn.hidden = true;
+          if (els.navWebpLink) els.navWebpLink.hidden = true;
+        }
+      })();
+
+      /* ---------------- Helpers ---------------- */
+      function announce(msg) {
+        els.srStatus.textContent = "";
+        window.setTimeout(function () { els.srStatus.textContent = msg; }, 30);
+      }
+      function fmtBytes(n) {
+        if (n == null || isNaN(n)) return "—";
+        if (n < 1024) return n + " B";
+        if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB";
+        return (n / (1024 * 1024)).toFixed(2) + " MB";
+      }
+      function fmtNum(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+      function sanitizeBase(name) {
+        var base = name.replace(/\.pdf$/i, "").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_");
+        return base || "document";
+      }
+      function showAlert(kind, html, withPasswordButton) {
+        els.alertBox.className = "alert show alert-" + kind;
+        els.alertBox.innerHTML = "";
+        var span = document.createElement("span");
+        span.innerHTML = html;
+        els.alertBox.appendChild(span);
+        if (withPasswordButton) {
+          var b = document.createElement("button");
+          b.type = "button"; b.className = "btn btn-sm"; b.textContent = "Enter Password";
+          b.addEventListener("click", function () { openOverlay(els.passwordOverlay, els.passwordInput); });
+          els.alertBox.appendChild(b);
+        }
+      }
+      function clearAlert() { els.alertBox.className = "alert"; els.alertBox.innerHTML = ""; }
+
+      /* ---------------- Overlays ---------------- */
+      function openOverlay(overlay, focusEl) {
+        state.lastFocus = document.activeElement;
+        overlay.classList.add("show");
+        window.setTimeout(function () { (focusEl || overlay.querySelector("button")).focus(); }, 30);
+      }
+      function closeOverlay(overlay) {
+        overlay.classList.remove("show");
+        if (state.lastFocus && state.lastFocus.focus) state.lastFocus.focus();
+      }
+      $$(".overlay").forEach(function (ov) {
+        ov.addEventListener("mousedown", function (e) { if (e.target === ov) closeOverlay(ov); });
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          $$(".overlay.show").forEach(function (ov) { closeOverlay(ov); });
+        } else if (els.lightboxOverlay.classList.contains("show")) {
+          if (e.key === "ArrowLeft") stepLightbox(-1);
+          else if (e.key === "ArrowRight") stepLightbox(1);
+        }
+      });
+
+      /* ---------------- Segmented Controls ---------------- */
+      function segGet(id) {
+        var b = $("#" + id + " button[aria-pressed='true']");
+        return b ? b.getAttribute("data-value") : null;
+      }
+      function segSet(id, value) {
+        $$("#" + id + " button").forEach(function (b) {
+          b.setAttribute("aria-pressed", b.getAttribute("data-value") === String(value) ? "true" : "false");
+        });
+      }
+      function segInit(id, onChange) {
+        $("#" + id).addEventListener("click", function (e) {
+          var b = e.target.closest("button");
+          if (!b || b.disabled) return;
+          segSet(id, b.getAttribute("data-value"));
+          onChange();
+        });
+      }
+      segInit("formatSeg", onSettingsChanged);
+      segInit("dpiSeg", onSettingsChanged);
+      segInit("qualitySeg", onSettingsChanged);
+      segInit("pageSeg", onSettingsChanged);
+      segInit("bgSeg", onSettingsChanged);
+
+      els.customDpi.addEventListener("input", onSettingsChanged);
+      function stepDpi(delta) {
+        var v = parseInt(els.customDpi.value, 10);
+        if (isNaN(v)) v = 300;
+        v = Math.min(1200, Math.max(72, v + delta));
+        els.customDpi.value = v;
+        onSettingsChanged();
+      }
+      $("#dpiMinus").addEventListener("click", function () { stepDpi(-10); });
+      $("#dpiPlus").addEventListener("click", function () { stepDpi(10); });
+      els.rangeInput.addEventListener("input", onSettingsChanged);
+      els.bgColor.addEventListener("input", onSettingsChanged);
+
+      function getSettings() {
+        var dpiMode = segGet("dpiSeg");
+        var dpi = dpiMode === "custom" ? parseInt(els.customDpi.value, 10) : parseInt(dpiMode, 10);
+        return {
+          format: segGet("formatSeg"),
+          dpiMode: dpiMode,
+          dpi: dpi,
+          quality: parseInt(segGet("qualitySeg"), 10),
+          pageSel: segGet("pageSeg"),
+          range: els.rangeInput.value,
+          bg: segGet("bgSeg"),
+          bgColor: els.bgColor.value
+        };
+      }
+
+      var lastModes = { dpi: null, pages: null, bg: null };
+      function settingsSummary(s) {
+        var dpiTxt = s.dpiMode === "custom"
+          ? (isNaN(s.dpi) ? "Custom DPI" : s.dpi + " DPI")
+          : s.dpi + " DPI";
+        var pagesTxt = s.pageSel === "all" ? "All pages"
+          : s.pageSel === "current" ? "Page " + state.previewPage + " only"
+          : "Custom range";
+        return s.format.toUpperCase() + " · " + dpiTxt + " · " + pagesTxt +
+          (s.format !== "png" ? " · " + s.quality + "%" : "");
+      }
+      function updateSummaries(s) {
+        var st = s || getSettings();
+        var txt = settingsSummary(st);
+        els.moreSummary.textContent = txt;
+        els.stickySummary.textContent = txt;
+        els.statSettings.textContent =
+          (st.dpiMode === "custom" && isNaN(st.dpi) ? "Custom" : st.dpi) + " DPI · " + st.format.toUpperCase();
+        els.convertNote.textContent = txt;
+      }
+
+      function onSettingsChanged() {
+        var s = getSettings();
+        els.customDpiRow.hidden = s.dpiMode !== "custom";
+        els.rangeRow.hidden = s.pageSel !== "range";
+        els.rangeLabel.hidden = s.pageSel !== "range";
+        els.qualityField.style.display = s.format !== "png" ? "" : "none";
+
+        if (s.format === "png") {
+          els.formatNote.textContent = "PNG stores rendered pixels losslessly and supports transparency. Best for sharp text, logos, and diagrams.";
+        } else if (s.format === "webp") {
+          els.formatNote.textContent = "WebP delivers modern compression with much smaller file sizes than PNG/JPG while still supporting transparency.";
+          els.qualityLegend.textContent = "WebP quality";
+        } else {
+          els.formatNote.textContent = "JPG is universally compatible and great for photos. Since JPG is lossy and has no transparency, PNG is better for fine text.";
+          els.qualityLegend.textContent = "JPG quality";
+        }
+
+        if (s.format === "jpg") {
+          els.bgTransparentBtn.disabled = true;
+          if (s.bg === "transparent") { segSet("bgSeg", "white"); s.bg = "white"; }
+          els.bgNote.textContent = "JPG does not support transparency, so pages are flattened onto white or your custom colour.";
+        } else {
+          els.bgTransparentBtn.disabled = false;
+          els.bgNote.textContent = "White fills the page backdrop cleanly. Transparent preserves the alpha channel in your exported " + s.format.toUpperCase() + ".";
+        }
+        els.bgColorRow.hidden = segGet("bgSeg") !== "custom";
+        s.bg = segGet("bgSeg");
+
+        if ((s.dpiMode === "custom" && lastModes.dpi !== "custom") ||
+            (s.pageSel === "range" && lastModes.pages !== "range") ||
+            (s.bg === "custom" && lastModes.bg !== "custom")) {
+          els.moreOptions.open = true;
+        }
+        lastModes = { dpi: s.dpiMode, pages: s.pageSel, bg: s.bg };
+        updateSummaries(s);
+        updateEstimate();
+      }
+
+      /* ---------------- Page Selection ---------------- */
+      function parseRange(str, numPages) {
+        var out = [], seen = {};
+        var parts = String(str).split(",");
+        for (var i = 0; i < parts.length; i++) {
+          var part = parts[i].trim();
+          if (!part) return { error: "The page range has an empty entry. Use a format like 1-3, 5." };
+          var m = part.match(/^(\d+)\s*(?:-\s*(\d+))?$/);
+          if (!m) return { error: "\"" + part + "\" is not a valid page or range. Use a format like 1-3, 5." };
+          var a = parseInt(m[1], 10), b = m[2] ? parseInt(m[2], 10) : a;
+          if (a < 1 || b < a) return { error: "\"" + part + "\" is not a valid range." };
+          if (b > numPages) return { error: "Page " + b + " doesn't exist — this PDF has " + numPages + " page" + (numPages === 1 ? "" : "s") + "." };
+          for (var p = a; p <= b; p++) { if (!seen[p]) { seen[p] = true; out.push(p); } }
+        }
+        out.sort(function (x, y) { return x - y; });
+        if (!out.length) return { error: "Enter at least one page, for example 1-3, 5." };
+        return { pages: out };
+      }
+      function selectedPages() {
+        var s = getSettings();
+        if (!state.pdfDoc) return { pages: [] };
+        if (s.pageSel === "all") {
+          var all = []; for (var i = 1; i <= state.numPages; i++) all.push(i);
+          return { pages: all };
+        }
+        if (s.pageSel === "current") return { pages: [state.previewPage] };
+        return parseRange(s.range, state.numPages);
+      }
+
+      function updateEstimate() {
+        updateSummaries();
+        if (!state.pdfDoc) { els.estimateText.textContent = "—"; return; }
+        var s = getSettings();
+        var dims = state.dimsCache[state.previewPage];
+        if (!dims) { els.estimateText.textContent = "—"; return; }
+        if (s.dpiMode === "custom" && (isNaN(s.dpi) || s.dpi < 72 || s.dpi > 1200)) {
+          els.estimateText.textContent = "Enter a custom DPI between 72 and 1200.";
+          return;
+        }
+        var sel = selectedPages();
+        if (sel.error) {
+          els.estimateText.textContent = "Check page range: " + sel.error;
+          els.rangeError.textContent = sel.error; els.rangeError.classList.add("show");
+          return;
+        }
+        els.rangeError.textContent = ""; els.rangeError.classList.remove("show");
+        var w = Math.round(dims.w / 72 * s.dpi), h = Math.round(dims.h / 72 * s.dpi);
+        var mp = (w * h / 1000000).toFixed(1);
+        els.estimateText.textContent =
+          fmtNum(w) + " × " + fmtNum(h) + " px (" + mp + " MP, page " + state.previewPage + ") · " +
+          sel.pages.length + " page" + (sel.pages.length === 1 ? "" : "s") + " · " +
+          s.format.toUpperCase() + (s.format !== "png" ? " (" + s.quality + "%)" : "") +
+          " · " + s.dpi + " DPI";
+      }
+
+      /* ---------------- PDF.js Worker Setup ---------------- */
+      var engineReady = (typeof window.pdfjsLib !== "undefined");
+      var workerReadyPromise = Promise.resolve();
+      if (engineReady) {
+        workerReadyPromise = (async function () {
+          try {
+            var res = await fetch(WORKER_URL);
+            if (res.ok) {
+              var blob = await res.blob();
+              window.pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(blob);
+              return;
+            }
+          } catch (e) {}
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = WORKER_URL;
+        })();
+      }
+
+      /* ---------------- File Intake & Header Check ---------------- */
+      function hasPdfSignature(buf) {
+        var bytes = new Uint8Array(buf, 0, Math.min(buf.byteLength, 1024));
+        for (var i = 0; i <= bytes.length - 5; i++) {
+          if (bytes[i] === 0x25 && bytes[i + 1] === 0x50 && bytes[i + 2] === 0x44 && bytes[i + 3] === 0x46 && bytes[i + 4] === 0x2D) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      els.browseBtn.addEventListener("click", function (e) { e.stopPropagation(); els.fileInput.click(); });
+      els.dropzone.addEventListener("click", function () { els.fileInput.click(); });
+      els.dropzone.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); els.fileInput.click(); }
+      });
+      ["dragenter", "dragover"].forEach(function (ev) {
+        els.dropzone.addEventListener(ev, function (e) { e.preventDefault(); els.dropzone.classList.add("dragover"); });
+      });
+      ["dragleave", "drop"].forEach(function (ev) {
+        els.dropzone.addEventListener(ev, function (e) { e.preventDefault(); els.dropzone.classList.remove("dragover"); });
+      });
+      els.dropzone.addEventListener("drop", function (e) {
+        var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (f) handleFile(f);
+      });
+      els.fileInput.addEventListener("change", function () {
+        var f = els.fileInput.files && els.fileInput.files[0];
+        els.fileInput.value = "";
+        if (f) handleFile(f);
+      });
+      els.replaceBtn.addEventListener("click", function () { els.fileInput.click(); });
+      els.removeBtn.addEventListener("click", function () { resetAll(true); });
+
+      async function handleFile(file) {
+        if (state.converting) return;
+        clearAlert();
+        if (!/\.pdf$/i.test(file.name) && file.type !== "application/pdf") {
+          showAlert("error", "<strong>Invalid file type.</strong> Please select a valid PDF document (.pdf).");
+          return;
+        }
+        var buf;
+        try { buf = await file.arrayBuffer(); }
+        catch (e) { showAlert("error", "<strong>Could not read file.</strong> It may be locked by another application."); return; }
+        if (!buf || buf.byteLength === 0) {
+          showAlert("error", "<strong>Empty file (0 bytes).</strong> Please choose a valid PDF document.");
+          return;
+        }
+        if (!hasPdfSignature(buf)) {
+          showAlert("error", "<strong>Invalid PDF signature.</strong> This file does not contain a valid %PDF- header.");
+          return;
+        }
+        clearResults();
+        els.results.classList.remove("show");
+        await teardownDoc();
+        state.fileName = file.name;
+        state.baseName = sanitizeBase(file.name);
+        state.fileSize = file.size;
+        state.pdfBytes = new Uint8Array(buf);
+        state.passwordNeeded = false;
+        els.fileName.textContent = file.name;
+        els.fileSub.textContent = fmtBytes(file.size) + " · opening document…";
+        els.filebar.classList.add("show");
+        els.dropzone.style.display = "none";
+        if (file.size > LARGE_FILE_BYTES) {
+          showAlert("warn", "<strong>Large PDF (" + fmtBytes(file.size) + ").</strong> Processing is still 100% local, but high-DPI conversion may use extra memory.");
+        }
+        loadDocument(null);
+      }
+
+      async function loadDocument(password) {
+        var currentLoadToken = ++state.loadToken;
+        if (!engineReady) {
+          showAlert("error", "<strong>PDF engine unavailable.</strong> Check your internet connection and reload the page.");
+          els.fileSub.textContent = fmtBytes(state.fileSize);
+          return;
+        }
+        await workerReadyPromise;
+        if (currentLoadToken !== state.loadToken) return;
+
+        var task;
+        try {
+          task = window.pdfjsLib.getDocument({
+            data: state.pdfBytes.slice(),
+            password: password || undefined,
+            cMapUrl: CMAP_URL, cMapPacked: true,
+            standardFontDataUrl: FONT_URL
+          });
+        } catch (e) {
+          showAlert("error", "<strong>Could not open PDF.</strong> " + friendlyError(e));
+          return;
+        }
+        var doc;
+        try { doc = await task.promise; }
+        catch (err) {
+          if (currentLoadToken !== state.loadToken) return;
+          if (err && err.name === "PasswordException") {
+            state.passwordNeeded = true;
+            if (err.code === 2) {
+              els.passwordError.textContent = "Incorrect password. Please try again.";
+              els.passwordError.classList.add("show");
+              openOverlay(els.passwordOverlay, els.passwordInput);
+            } else {
+              els.passwordError.textContent = ""; els.passwordError.classList.remove("show");
+              els.passwordText.textContent = "\"" + state.fileName + "\" is password-protected. Enter its password to unlock it locally.";
+              openOverlay(els.passwordOverlay, els.passwordInput);
+            }
+            els.fileSub.textContent = fmtBytes(state.fileSize) + " · password required";
+            return;
+          }
+          showAlert("error", "<strong>Corrupted or unreadable PDF.</strong> " + friendlyError(err));
+          els.fileSub.textContent = fmtBytes(state.fileSize);
+          return;
+        }
+        if (currentLoadToken !== state.loadToken) {
+          try { await doc.destroy(); } catch (e) {}
+          return;
+        }
+        state.pdfDoc = doc;
+        state.numPages = doc.numPages;
+        state.passwordNeeded = false;
+        state.dimsCache = {};
+        if (!doc.numPages || doc.numPages < 1) {
+          showAlert("error", "<strong>This PDF contains 0 pages.</strong>");
+          return;
+        }
+        els.fileSub.textContent = fmtBytes(state.fileSize) + " · " + state.numPages + " page" + (state.numPages === 1 ? "" : "s");
+        els.statPages.textContent = state.numPages;
+        els.pageJumpInput.max = String(state.numPages);
+        els.pageJumpInput.value = "1";
+        els.pageTotalLabel.textContent = "of " + state.numPages;
+        els.workspace.classList.add("show");
+        syncStickyBar();
+        announce("PDF loaded: " + state.fileName + ", " + state.numPages + " pages.");
+        state.previewPage = 1;
+        await renderPreview();
+        onSettingsChanged();
+      }
+
+      function friendlyError(err) {
+        if (!err) return "An unknown error occurred.";
+        if (err.name === "InvalidPDFException") return "The PDF structure appears damaged.";
+        return "Please verify the file opens in a standard PDF viewer.";
+      }
+
+      els.passwordForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var pw = els.passwordInput.value;
+        els.passwordInput.value = "";
+        closeOverlay(els.passwordOverlay);
+        loadDocument(pw);
+      });
+      els.passwordCancel.addEventListener("click", function () {
+        els.passwordInput.value = "";
+        closeOverlay(els.passwordOverlay);
+        showAlert("info", "<strong>Password required to unlock this PDF.</strong>", true);
+      });
+
+      /* ---------------- Preview & Page Jump ---------------- */
+      async function getDims(pageNum) {
+        if (state.dimsCache[pageNum]) return state.dimsCache[pageNum];
+        var page = await state.pdfDoc.getPage(pageNum);
+        var vp = page.getViewport({ scale: 1 });
+        state.dimsCache[pageNum] = { w: vp.width, h: vp.height };
+        return state.dimsCache[pageNum];
+      }
+
+      async function renderPreview() {
+        if (!state.pdfDoc) return;
+        var token = ++state.previewToken;
+        if (state.previewTask) { try { state.previewTask.cancel(); } catch (e) {} state.previewTask = null; }
+        var page;
+        try { page = await state.pdfDoc.getPage(state.previewPage); }
+        catch (e) { return; }
+        if (token !== state.previewToken || !state.pdfDoc) return;
+        var base = page.getViewport({ scale: 1 });
+        state.dimsCache[state.previewPage] = { w: base.width, h: base.height };
+        var frame = els.previewCanvas.parentElement;
+        var availW = Math.max(220, frame.clientWidth - 24);
+        var scale = Math.min(availW / base.width, 680 / base.height);
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var viewport = page.getViewport({ scale: scale * dpr });
+        var canvas = els.previewCanvas;
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+        canvas.style.width = Math.floor(viewport.width / dpr) + "px";
+        canvas.style.height = Math.floor(viewport.height / dpr) + "px";
+        var ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        var task = page.render({ canvasContext: ctx, viewport: viewport });
+        state.previewTask = task;
+        try { await task.promise; } catch (e) { return; }
+        if (token !== state.previewToken) return;
+        els.pageJumpInput.value = String(state.previewPage);
+        els.pageTotalLabel.textContent = "of " + state.numPages;
+        els.prevPageBtn.disabled = state.previewPage <= 1;
+        els.nextPageBtn.disabled = state.previewPage >= state.numPages;
+        els.pageSize.textContent =
+          base.width.toFixed(0) + " × " + base.height.toFixed(0) + " pt (" +
+          (base.width / 72).toFixed(2) + " × " + (base.height / 72).toFixed(2) + " in)";
+        updateEstimate();
+      }
+
+      els.prevPageBtn.addEventListener("click", function () {
+        if (state.previewPage > 1) { state.previewPage--; renderPreview(); }
+      });
+      els.nextPageBtn.addEventListener("click", function () {
+        if (state.previewPage < state.numPages) { state.previewPage++; renderPreview(); }
+      });
+      els.pageJumpInput.addEventListener("change", function () {
+        if (!state.pdfDoc) return;
+        var p = parseInt(els.pageJumpInput.value, 10);
+        if (isNaN(p)) p = state.previewPage;
+        p = Math.max(1, Math.min(state.numPages, p));
+        els.pageJumpInput.value = String(p);
+        if (p !== state.previewPage) {
+          state.previewPage = p;
+          renderPreview();
+        }
+      });
+
+      var resizeTimer = null;
+      window.addEventListener("resize", function () {
+        if (!state.pdfDoc) return;
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(renderPreview, 200);
+      });
+
+      /* ---------------- Conversion Engine ---------------- */
+      els.settingsForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        convert();
+      });
+      els.cancelBtn.addEventListener("click", function () {
+        state.cancelRequested = true;
+        if (state.currentTask) { try { state.currentTask.cancel(); } catch (e) {} }
+        els.progressStatus.textContent = "Cancelling…";
+      });
+
+      var confirmResolve = null;
+      els.confirmOk.addEventListener("click", function () {
+        closeOverlay(els.confirmOverlay);
+        if (confirmResolve) { confirmResolve(true); confirmResolve = null; }
+      });
+      els.confirmCancel.addEventListener("click", function () {
+        closeOverlay(els.confirmOverlay);
+        if (confirmResolve) { confirmResolve(false); confirmResolve = null; }
+      });
+      function confirmLargeJob(text) {
+        els.confirmText.textContent = text;
+        openOverlay(els.confirmOverlay, els.confirmOk);
+        return new Promise(function (res) { confirmResolve = res; });
+      }
+
+      function setConvertingUI(on) {
+        state.converting = on;
+        els.convertBtn.disabled = on;
+        els.convertBtn.textContent = on ? "Converting…" : "Convert PDF Now";
+        els.stickyConvertBtn.disabled = on;
+        els.stickyConvertBtn.textContent = on ? "Converting…" : "Convert";
+        els.progressBlock.classList.toggle("show", on);
+        $$("#settingsForm fieldset").forEach(function (f) { f.disabled = on; });
+        els.removeBtn.disabled = on; els.replaceBtn.disabled = on;
+        els.pageJumpInput.disabled = on;
+        els.prevPageBtn.disabled = on || state.previewPage <= 1;
+        els.nextPageBtn.disabled = on || state.previewPage >= state.numPages;
+      }
+      function setProgress(done, total, label) {
+        var pct = total ? Math.round(done / total * 100) : 0;
+        els.progressFill.style.width = pct + "%";
+        els.progressBar.setAttribute("aria-valuenow", String(pct));
+        if (label) { els.progressStatus.textContent = label; announce(label); }
+      }
+
+      function canvasToBlob(canvas, type, quality) {
+        return new Promise(function (resolve) {
+          try {
+            canvas.toBlob(function (b) { resolve(b); }, type, quality);
+          } catch (e) { resolve(null); }
+        });
+      }
+
+      async function convert() {
+        if (state.converting || !state.pdfDoc || state.passwordNeeded) return;
+        var s = getSettings();
+        clearAlert();
+
+        if (s.dpiMode === "custom" && (isNaN(s.dpi) || s.dpi < 72 || s.dpi > 1200 || Math.floor(s.dpi) !== s.dpi)) {
+          showAlert("error", "<strong>Custom DPI must be a whole number between 72 and 1200.</strong>");
+          els.customDpi.focus();
+          return;
+        }
+        var sel = selectedPages();
+        if (sel.error) {
+          els.rangeError.textContent = sel.error; els.rangeError.classList.add("show");
+          showAlert("error", "<strong>Invalid page range.</strong> " + sel.error);
+          return;
+        }
+        var pages = sel.pages;
+
+        var dimsList = [];
+        try {
+          for (var i = 0; i < pages.length; i++) dimsList.push(await getDims(pages[i]));
+        } catch (e) {
+          showAlert("error", "<strong>Could not read PDF page dimensions.</strong>");
+          return;
+        }
+        var scale = s.dpi / 72;
+        var maxSide = 0, maxPixels = 0, totalPixels = 0, oversizePage = 0;
+        for (var j = 0; j < pages.length; j++) {
+          var pw = Math.round(dimsList[j].w * scale), ph = Math.round(dimsList[j].h * scale);
+          maxSide = Math.max(maxSide, pw, ph);
+          maxPixels = Math.max(maxPixels, pw * ph);
+          totalPixels += pw * ph;
+          if (pw > MAX_CANVAS_SIDE || ph > MAX_CANVAS_SIDE) oversizePage = pages[j];
+        }
+        if (oversizePage) {
+          showAlert("error", "<strong>Page " + oversizePage + " exceeds the browser's 16,384 px canvas limit at " + s.dpi + " DPI.</strong> Please choose a lower DPI.");
+          return;
+        }
+        if (maxPixels > WARN_PAGE_PIXELS || totalPixels > WARN_TOTAL_PIXELS) {
+          var ok = await confirmLargeJob(
+            pages.length + " page" + (pages.length === 1 ? "" : "s") + " at " + s.dpi + " DPI equals roughly " +
+            (totalPixels / 1000000).toFixed(0) + " megapixels in total (largest page: " +
+            (maxPixels / 1000000).toFixed(0) + " MP)."
+          );
+          if (!ok) return;
+        }
+
+        clearResults();
+        state.cancelRequested = false;
+        setConvertingUI(true);
+        setProgress(0, pages.length, "Preparing…");
+        els.results.classList.remove("show");
+
+        var fillColor = null;
+        if (s.format === "jpg") fillColor = s.bg === "custom" ? s.bgColor : "#ffffff";
+        else if (s.bg === "white") fillColor = "#ffffff";
+        else if (s.bg === "custom") fillColor = s.bgColor;
+
+        var mime = s.format === "jpg" ? "image/jpeg" : (s.format === "webp" ? "image/webp" : "image/png");
+        var ext = s.format === "jpg" ? "jpg" : (s.format === "webp" ? "webp" : "png");
+
+        var done = 0;
+        for (var k = 0; k < pages.length; k++) {
+          if (state.cancelRequested) break;
+          var pageNum = pages[k];
+          setProgress(done, pages.length, "Rendering page " + (k + 1) + " of " + pages.length + " (PDF page " + pageNum + ")…");
+          try {
+            var page = await state.pdfDoc.getPage(pageNum);
+            var viewport = page.getViewport({ scale: scale });
+            var canvas = document.createElement("canvas");
+            canvas.width = Math.floor(viewport.width);
+            canvas.height = Math.floor(viewport.height);
+            var ctx = canvas.getContext("2d", { alpha: fillColor === null });
+            if (fillColor) {
+              ctx.fillStyle = fillColor;
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            var renderParams = { canvasContext: ctx, viewport: viewport };
+            if (fillColor) renderParams.background = fillColor;
+            var task = page.render(renderParams);
+            state.currentTask = task;
+            await task.promise;
+            state.currentTask = null;
+            if (state.cancelRequested) { canvas.width = 0; canvas.height = 0; break; }
+            var blob = await canvasToBlob(canvas, mime, s.format !== "png" ? s.quality / 100 : undefined);
+            var w = canvas.width, h = canvas.height;
+            canvas.width = 0; canvas.height = 0;
+            if (!blob) throw new Error("encoding failed");
+            var idx = state.results.length;
+            var result = {
+              index: idx,
+              page: pageNum,
+              name: state.baseName + "_page_" + String(pageNum).padStart(3, "0") + "." + ext,
+              blob: blob, url: URL.createObjectURL(blob), w: w, h: h
+            };
+            state.results.push(result);
+            appendResultCard(result);
+            if (typeof page.cleanup === "function") page.cleanup();
+          } catch (err) {
+            state.currentTask = null;
+            if (state.cancelRequested || (err && err.name === "RenderingCancelledException")) break;
+            state.failures.push({
+              page: pageNum,
+              message: "Page " + pageNum + " failed to render at " + s.dpi + " DPI."
+            });
+          }
+          done++;
+          setProgress(done, pages.length, null);
+        }
+
+        var wasCancelled = state.cancelRequested;
+        setConvertingUI(false);
+        els.progressBlock.classList.remove("show");
+        showResults(s, wasCancelled);
+        if (state.results.length) {
+          announce("Conversion complete. " + state.results.length + " images ready.");
+          els.results.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else if (!wasCancelled) {
+          showAlert("error", "<strong>No pages could be converted.</strong> Try lowering the DPI.");
+        }
+      }
+
+      function appendResultCard(r) {
+        var card = document.createElement("div");
+        card.className = "result-card";
+        var thumb = document.createElement("div");
+        thumb.className = "result-thumb";
+        thumb.title = "Click to inspect full size";
+        var img = document.createElement("img");
+        img.src = r.url; img.alt = "Converted page " + r.page; img.loading = "lazy";
+        thumb.appendChild(img);
+        thumb.addEventListener("click", function () { openLightbox(r.index); });
+
+        var body = document.createElement("div");
+        body.className = "result-body";
+        var name = document.createElement("div");
+        name.className = "result-name"; name.textContent = r.name;
+        var meta = document.createElement("div");
+        meta.className = "result-meta";
+        meta.textContent = fmtNum(r.w) + " × " + fmtNum(r.h) + " px · " + fmtBytes(r.blob.size);
+        var actions = document.createElement("div");
+        actions.className = "result-actions";
+        var dl = document.createElement("button");
+        dl.type = "button"; dl.className = "btn btn-primary btn-sm"; dl.textContent = "Save";
+        dl.addEventListener("click", function () { downloadBlob(r.blob, r.name); });
+        var view = document.createElement("button");
+        view.type = "button"; view.className = "btn btn-sm"; view.textContent = "Inspect";
+        view.addEventListener("click", function () { openLightbox(r.index); });
+        actions.appendChild(dl); actions.appendChild(view);
+        body.appendChild(name); body.appendChild(meta); body.appendChild(actions);
+        card.appendChild(thumb); card.appendChild(body);
+        els.gallery.appendChild(card);
+      }
+
+      function showResults(s, wasCancelled) {
+        if (!state.results.length && !state.failures.length) { els.results.classList.remove("show"); return; }
+        var totalSize = state.results.reduce(function (acc, r) { return acc + r.blob.size; }, 0);
+        els.resultsSummary.textContent =
+          state.results.length + " image" + (state.results.length === 1 ? "" : "s") + " · " +
+          s.format.toUpperCase() + " · " + s.dpi + " DPI" +
+          (s.format !== "png" ? " · " + s.quality + "% quality" : "") +
+          " · " + fmtBytes(totalSize) + " total" +
+          (wasCancelled ? " (cancelled early — finished pages kept)" : "");
+        if (state.failures.length) {
+          els.failuresList.innerHTML = "";
+          state.failures.forEach(function (f) {
+            var li = document.createElement("li");
+            li.textContent = f.message;
+            els.failuresList.appendChild(li);
+          });
+          els.failuresBox.classList.add("show");
+        } else {
+          els.failuresBox.classList.remove("show");
+        }
+        var hasRes = state.results.length > 0;
+        els.zipBtn.disabled = !hasRes;
+        els.zipBtnTop.disabled = !hasRes;
+        var zipLabel = "Download All as ZIP (" + state.results.length + ")";
+        els.zipBtn.textContent = zipLabel;
+        els.zipBtnTop.textContent = zipLabel;
+        els.results.classList.add("show");
+      }
+
+      function downloadBlob(blob, name) {
+        var a = document.createElement("a");
+        var url = URL.createObjectURL(blob);
+        a.href = url; a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      }
+
+      async function downloadAllZip() {
+        if (!state.results.length) return;
+        if (typeof window.JSZip === "undefined") {
+          showAlert("error", "<strong>ZIP library unavailable.</strong> Please save images individually.");
+          return;
+        }
+        var orig1 = els.zipBtn.textContent;
+        els.zipBtn.disabled = true; els.zipBtnTop.disabled = true;
+        els.zipBtn.textContent = "Building ZIP…"; els.zipBtnTop.textContent = "Building ZIP…";
+        try {
+          var zip = new window.JSZip();
+          state.results.forEach(function (r) { zip.file(r.name, r.blob); });
+          var blob = await zip.generateAsync({ type: "blob", compression: "STORE" });
+          downloadBlob(blob, state.baseName + "_images.zip");
+          announce("ZIP archive downloaded.");
+        } catch (e) {
+          showAlert("error", "<strong>Could not build ZIP archive.</strong> Please download images individually.");
+        } finally {
+          els.zipBtn.disabled = false; els.zipBtnTop.disabled = false;
+          els.zipBtn.textContent = orig1; els.zipBtnTop.textContent = orig1;
+        }
+      }
+      els.zipBtn.addEventListener("click", downloadAllZip);
+      els.zipBtnTop.addEventListener("click", downloadAllZip);
+
+      els.againBtn.addEventListener("click", function () {
+        $("#converter").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      els.anotherBtn.addEventListener("click", function () { resetAll(true); });
+
+      /* ---------------- Lightbox with Next/Prev ---------------- */
+      var lbIndex = -1;
+      var currentZoom = "fit";
+      function setZoom(mode) {
+        currentZoom = mode;
+        $$("#lightboxOverlay [data-zoom]").forEach(function (b) {
+          b.setAttribute("aria-pressed", b.getAttribute("data-zoom") === mode ? "true" : "false");
+        });
+        var r = state.results[lbIndex];
+        if (!r) return;
+        if (mode === "fit") { els.lbImg.style.width = "auto"; els.lbImg.style.maxWidth = "100%"; }
+        else if (mode === "100") { els.lbImg.style.maxWidth = "none"; els.lbImg.style.width = r.w + "px"; }
+        else { els.lbImg.style.maxWidth = "none"; els.lbImg.style.width = (r.w * 2) + "px"; }
+        els.lbStage.scrollTop = 0; els.lbStage.scrollLeft = 0;
+      }
+      $$("#lightboxOverlay [data-zoom]").forEach(function (b) {
+        b.addEventListener("click", function () { setZoom(b.getAttribute("data-zoom")); });
+      });
+
+      function updateLightboxView() {
+        var r = state.results[lbIndex];
+        if (!r) return;
+        els.lbImg.src = r.url;
+        els.lbName.textContent = r.name;
+        els.lbMeta.textContent = fmtNum(r.w) + " × " + fmtNum(r.h) + " px · " + fmtBytes(r.blob.size) + " · Page " + r.page + " (" + (lbIndex + 1) + " of " + state.results.length + ")";
+        els.lbPrev.disabled = lbIndex <= 0;
+        els.lbNext.disabled = lbIndex >= state.results.length - 1;
+        setZoom(currentZoom);
+      }
+      function openLightbox(idx) {
+        lbIndex = idx;
+        currentZoom = "fit";
+        updateLightboxView();
+        openOverlay(els.lightboxOverlay, els.lbClose);
+      }
+      function stepLightbox(dir) {
+        var next = lbIndex + dir;
+        if (next >= 0 && next < state.results.length) {
+          lbIndex = next;
+          updateLightboxView();
+        }
+      }
+      els.lbPrev.addEventListener("click", function () { stepLightbox(-1); });
+      els.lbNext.addEventListener("click", function () { stepLightbox(1); });
+      els.lbDownload.addEventListener("click", function () {
+        var r = state.results[lbIndex];
+        if (r) downloadBlob(r.blob, r.name);
+      });
+      els.lbClose.addEventListener("click", function () { closeOverlay(els.lightboxOverlay); });
+
+      /* ---------------- Reset & Memory Cleanup ---------------- */
+      function clearResults() {
+        state.results.forEach(function (r) { URL.revokeObjectURL(r.url); });
+        state.results = [];
+        state.failures = [];
+        els.gallery.innerHTML = "";
+      }
+      async function teardownDoc() {
+        state.loadToken++;
+        state.previewToken++;
+        if (state.previewTask) { try { state.previewTask.cancel(); } catch (e) {} state.previewTask = null; }
+        if (state.pdfDoc) { try { await state.pdfDoc.destroy(); } catch (e) {} state.pdfDoc = null; }
+      }
+      async function resetAll(scrollToTop) {
+        if (state.converting) return;
+        clearResults();
+        await teardownDoc();
+        state.fileName = ""; state.baseName = ""; state.fileSize = 0;
+        state.pdfBytes = null; state.numPages = 0; state.previewPage = 1;
+        state.dimsCache = {}; state.passwordNeeded = false;
+        els.statPages.textContent = "—";
+        els.filebar.classList.remove("show");
+        els.workspace.classList.remove("show");
+        els.results.classList.remove("show");
+        els.progressBlock.classList.remove("show");
+        els.dropzone.style.display = "";
+        clearAlert();
+        syncStickyBar();
+        els.previewCanvas.width = 0; els.previewCanvas.height = 0;
+        if (scrollToTop) $("#converter").scrollIntoView({ behavior: "smooth", block: "start" });
+        announce("Converter reset.");
+      }
+
+      /* ---------------- Sticky Bar ---------------- */
+      function syncStickyBar() {
+        var show = !!state.pdfDoc && $("#view-main").classList.contains("active");
+        els.stickyBar.classList.toggle("show", show);
+        document.body.classList.toggle("has-doc", show);
+      }
+      els.stickyConvertBtn.addEventListener("click", function () {
+        if (!els.convertBtn.disabled) els.convertBtn.click();
+      });
+
+      /* ---------------- Views & Routing ---------------- */
+      var views = { main: $("#view-main"), privacy: $("#view-privacy"), about: $("#view-about"), faq: $("#view-faq"), "404": $("#view-404") };
+      function updateTabHighlight(viewName) {
+        $$(".tabbar a").forEach(function (a) {
+          var t = a.getAttribute("data-tab");
+          var isAct = (viewName === "main" && t === "home") || (viewName === t);
+          a.classList.toggle("active", isAct);
+        });
+      }
+      function showView(name) {
+        Object.keys(views).forEach(function (k) { views[k].classList.toggle("active", k === name); });
+        updateTabHighlight(name);
+        syncStickyBar();
+        window.scrollTo(0, 0);
+      }
+      function route() {
+        var h = window.location.hash || "";
+        if (h.indexOf("#/") === 0) {
+          var p = h.slice(2).split("?")[0];
+          if (p === "privacy") showView("privacy");
+          else if (p === "about") showView("about");
+          else if (p === "faq") showView("faq");
+          else if (p === "") showView("main");
+          else showView("404");
+        } else {
+          showView("main");
+        }
+      }
+      window.addEventListener("hashchange", route);
+      window.addEventListener("popstate", route);
+      route();
+
+      function goHome(e) {
+        if (e) e.preventDefault();
+        showView("main");
+        if (window.location.hash.indexOf("#/") === 0) {
+          try { history.pushState(null, "", window.location.pathname + window.location.search); } catch (err) {}
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      $$("[data-nav-home]").forEach(function (a) { a.addEventListener("click", goHome); });
+      $$("[data-view-link]").forEach(function (a) {
+        a.addEventListener("click", function (e) {
+          e.preventDefault();
+          var v = a.getAttribute("data-view-link");
+          try { history.pushState(null, "", "#/" + v); } catch (err) {}
+          showView(v);
+        });
+      });
+      $$("[data-scroll-to]").forEach(function (a) {
+        a.addEventListener("click", function (e) {
+          e.preventDefault();
+          showView("main");
+          $$(".tabbar a").forEach(function (t) { t.classList.toggle("active", t === a); });
+          if (window.location.hash.indexOf("#/") === 0) {
+            try { history.pushState(null, "", window.location.pathname + window.location.search); } catch (err) {}
+          }
+          window.setTimeout(function () {
+            var el = document.getElementById(a.getAttribute("data-scroll-to"));
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 40);
+        });
+      });
+      $$("[data-set-format]").forEach(function (a) {
+        a.addEventListener("click", function (e) {
+          e.preventDefault();
+          var fmt = a.getAttribute("data-set-format");
+          showView("main");
+          segSet("formatSeg", fmt);
+          onSettingsChanged();
+          $("#converter").scrollIntoView({ behavior: "smooth", block: "start" });
+          announce("Output format set to " + fmt.toUpperCase() + ".");
+        });
+      });
+
+      /* ---------------- Init ---------------- */
+      onSettingsChanged();
+      if (!engineReady) {
+        showAlert("error", "<strong>PDF.js library failed to load.</strong> Check your internet connection and reload.");
+      }
+    })();
+    </script>
+  </body>
+</html>
